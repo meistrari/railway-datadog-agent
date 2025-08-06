@@ -1,4 +1,4 @@
-FROM datadog/agent:7
+FROM datadog/agent:7-full
 
 COPY datadog.yaml /etc/datadog-agent/datadog.yaml
 COPY otel-config.yaml /etc/datadog-agent/otel-config.yaml

@@ -11,8 +11,8 @@ exporters:
     verbosity: detailed
   datadog:
     api:
-      key: \${env:DD_API_KEY}
-      site: \${env:DD_SITE}
+      key: ${DD_API_KEY}
+      site: ${DD_SITE}
 
 processors:
   batch:
