@@ -5,10 +5,12 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - http://*
+            - https://*
 
 exporters:
-  debug:
-    verbosity: detailed
   datadog:
     api:
       key: ${DD_API_KEY}
@@ -31,16 +33,19 @@ connectors:
       peer_tags_aggregation: true
 
 service:
+  telemetry:
+    logs:
+      level: "debug"
   pipelines:
     traces:
       receivers: [otlp]
       processors: [attributes/update, batch]
-      exporters: [debug, datadog, datadog/connector]
+      exporters: [datadog, datadog/connector]
     metrics:
       receivers: [otlp, datadog/connector]
       processors: [attributes/update, batch]
-      exporters: [debug, datadog]
+      exporters: [datadog]
     logs:
       receivers: [otlp]
       processors: [attributes/update, batch]
-      exporters: [debug, datadog]
+      exporters: [datadog]
