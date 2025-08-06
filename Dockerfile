@@ -1,12 +1,8 @@
 FROM datadog/agent:7
 
-# Copy datadog.yaml into the container
 COPY datadog.yaml /etc/datadog-agent/datadog.yaml
+COPY otel-config.yaml /etc/datadog-agent/otel-config.yaml
 
-# Copy syslog configuration file
-COPY syslog.yaml /etc/datadog-agent/conf.d/syslog.d/
+EXPOSE 4318
 
-# DogStatsD port, APM port, and the syslog port
-EXPOSE 8125/udp
-EXPOSE 8126
-EXPOSE 514/udp
+CMD ["otel-agent", "--config=/etc/datadog-agent/otel-config.yaml", "--core-config=/etc/datadog-agent/datadog.yaml", "--sync-delay=30s"]

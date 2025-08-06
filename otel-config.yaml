@@ -1,0 +1,46 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+exporters:
+  debug:
+    verbosity: detailed
+  datadog:
+    api:
+      key: \${env:DD_API_KEY}
+      site: \${env:DD_SITE}
+
+processors:
+  batch:
+    timeout: 10s
+  attributes/update:
+    actions:
+      - key: http.request.header.authorization
+        action: hash
+      - key: http.request.header.x-data-token
+        action: hash
+
+connectors:
+  datadog/connector:
+    traces:
+      compute_stats_by_span_kind: true
+      peer_tags_aggregation: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [attributes/update, batch]
+      exporters: [debug, datadog, datadog/connector]
+    metrics:
+      receivers: [otlp, datadog/connector]
+      processors: [attributes/update, batch]
+      exporters: [debug, datadog]
+    logs:
+      receivers: [otlp]
+      processors: [attributes/update, batch]
+      exporters: [debug, datadog]
