@@ -15,3 +15,6 @@ DD_API_KEY="YOUR_DATADOG_API_KEY"
 Now, in your application, the first steps is to instrument your application with OpenTelemetry.
 
 The only thing to change is to set the datadog-agent otel-collector as the export endpoint by setting the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable with the value: `http://otel-agent:4318`, where `otel-agent` is the name of the service defined in your railway project.
+
+# Useful tips
+- Ensure the connection with this Github repository on the `main` branch is set up in your Railway project, so the datadog-agent always run the latest version
