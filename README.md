@@ -7,7 +7,7 @@ This image is a custom Docker container for running the Datadog Agent with OpenT
 
 Add this github repo to your Railway project and set the following environment variables:
 ```bash
-DD_HOSTNAME="${{RAILWAY_PRIVATE_DOMAIN}}"
+DD_HOSTNAME="${{RAILWAY_PROJECT_NAME}}-${{RAILWAY_ENVIRONMENT_NAME}}"
 DD_SITE="YOUR_DATADOG_SITE" # e.g., us5.datadoghq.com
 DD_API_KEY="YOUR_DATADOG_API_KEY"
 ```
