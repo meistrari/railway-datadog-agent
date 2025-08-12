@@ -1,0 +1,7 @@
+services:
+  otel-agent:
+    build: .
+    env_file: .env
+    volumes:
+      - ./datadog.yaml:/etc/datadog-agent/datadog.yaml
+      - ./otel-config.yaml:/etc/datadog-agent/otel-config.yaml
