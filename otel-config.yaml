@@ -25,6 +25,8 @@ processors:
         action: hash
       - key: http.request.header.x-data-token
         action: hash
+      - key: http.request.header.x-management-key
+        action: hash
 
 connectors:
   datadog/connector:
