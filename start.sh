@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-set -euo pipefail
+set -eu
 
 CONFIG_FILE="/otel-config/otel-config-private.yaml"
 
@@ -12,4 +12,4 @@ fi
 
 echo "Using config file: $CONFIG_FILE"
 
-otel-agent --config=$CONFIG_FILE --core-config=/etc/datadog-agent/datadog.yaml
+/otelcol-contrib --config=$CONFIG_FILE
