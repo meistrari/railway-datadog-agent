@@ -5,3 +5,7 @@ services:
     volumes:
       - ./datadog.yaml:/etc/datadog-agent/datadog.yaml
       - ./otel-config.yaml:/etc/datadog-agent/otel-config.yaml
+      - ./otel-config-public.yaml:/etc/datadog-agent/otel-config-public.yaml
+      - ./start.sh:/start.sh
+    ports:
+      - 4318:4318
