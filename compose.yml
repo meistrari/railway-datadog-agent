@@ -3,7 +3,6 @@ services:
     build: .
     env_file: .env
     volumes:
-      - ./datadog.yaml:/etc/datadog-agent/datadog.yaml
       - ./otel-config/:/otel-config
       - ./start.sh:/start.sh
     ports:

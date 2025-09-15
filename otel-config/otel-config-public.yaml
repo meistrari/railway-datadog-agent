@@ -36,6 +36,7 @@ connectors:
       peer_tags_aggregation: true
 
 service:
+  extensions: [basicauth/server]
   pipelines:
     traces:
       receivers: [otlp/with-auth]
