@@ -1,8 +1,10 @@
 FROM datadog/agent:7-full
 
+COPY ./start.sh ./start.sh
+
 COPY datadog.yaml /etc/datadog-agent/datadog.yaml
-COPY otel-config.yaml /etc/datadog-agent/otel-config.yaml
+COPY otel-config*.yaml /etc/datadog-agent/
 
-EXPOSE 4317 4318
+EXPOSE 4318
 
-CMD ["otel-agent", "--config=/etc/datadog-agent/otel-config.yaml", "--core-config=/etc/datadog-agent/datadog.yaml", "--sync-delay=30s"]
+CMD ["./start.sh"]
