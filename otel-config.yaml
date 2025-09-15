@@ -1,24 +1,17 @@
 receivers:
   otlp:
     protocols:
-      grpc:
-        endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-        cors:
-          allowed_origins:
-            - http://*
-            - https://*
 
 exporters:
   datadog:
     api:
-      key: ${DD_API_KEY}
-      site: ${DD_SITE}
+      key: ${env:DD_API_KEY}
+      site: ${env:DD_SITE}
 
 processors:
   batch:
-    timeout: 10s
   attributes/update:
     actions:
       - key: http.request.header.authorization
@@ -35,9 +28,6 @@ connectors:
       peer_tags_aggregation: true
 
 service:
-  telemetry:
-    logs:
-      level: "debug"
   pipelines:
     traces:
       receivers: [otlp]
