@@ -15,3 +15,6 @@ otlp_config:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+
+logs_config:
+  force_use_http: true
