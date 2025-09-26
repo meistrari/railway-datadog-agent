@@ -5,8 +5,8 @@ apm_config:
   enabled: true
   apm_non_local_traffic: true
 
-# logs_enabled: true
-# log_level: debug
+logs_enabled: true
+log_level: debug
 
 otlp_config:
   receiver:
