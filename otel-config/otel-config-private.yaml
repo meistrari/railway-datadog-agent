@@ -10,10 +10,10 @@ receivers:
       listen_address: 0.0.0.0:54526
     protocol: rfc3164
     resource:
-      - service.namespace: caddy
-      - service.name: caddy
-      - service.version: unknown
-      - deployment.environment.name: staging
+      service.namespace: caddy
+      service.name: caddy
+      service.version: unknown
+      deployment.environment: staging
 
 exporters:
   datadog:

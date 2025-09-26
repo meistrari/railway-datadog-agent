@@ -1,10 +1,18 @@
-FROM datadog/agent:7-full
+FROM otel/opentelemetry-collector-contrib:0.135.0 AS collector
 
-COPY ./datadog.yaml /etc/datadog-agent/datadog.yaml
-COPY ./otel-config/otel-config-private.yaml /etc/datadog-agent/otel-config.yaml
+FROM alpine:3.19
 
-COPY ./syslog.yaml /etc/datadog-agent/conf.d/syslog.d/conf.yaml
+RUN apk add --no-cache ca-certificates
 
-EXPOSE 4317 4318 514
+# Copy the collector binary
+COPY --from=collector /otelcol-contrib /otelcol-contrib
 
-CMD ["otel-agent", "--config=/etc/datadog-agent/otel-config.yaml", "--core-config=/etc/datadog-agent/datadog.yaml", "--sync-delay=30s"]
+# Copy configuration files
+COPY ./otel-config/*.yaml /otel-config/
+COPY ./start.sh /start.sh
+RUN chmod +x /start.sh
+
+EXPOSE 4317 4318 514/udp
+
+# Use the start script to dynamically select config
+CMD ["/start.sh"]
