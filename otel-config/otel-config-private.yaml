@@ -5,6 +5,15 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+  syslog:
+    udp:
+      listen_address: 0.0.0.0:54526
+    protocol: rfc3164
+    resource:
+      - service.namespace: caddy
+      - service.name: caddy
+      - service.version: unknown
+      - deployment.environment.name: staging
 
 exporters:
   datadog:
@@ -40,6 +49,6 @@ service:
       processors: [attributes/update, batch]
       exporters: [datadog]
     logs:
-      receivers: [otlp]
+      receivers: [otlp, syslog]
       processors: [attributes/update, batch]
       exporters: [datadog]
