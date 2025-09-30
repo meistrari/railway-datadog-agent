@@ -22,6 +22,13 @@ processors:
         action: hash
       - key: http.request.header.x-management-key
         action: hash
+  transform/host:
+    metric_statements: &statements
+      - context: resource
+        statements:
+          - set(attributes["host"], "otelcol-docker")
+    trace_statements: *statements # Use the same statements as in metrics
+    log_statements:   *statements # Use the same statements as in metrics
 
 connectors:
   datadog/connector:
@@ -33,13 +40,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [attributes/update, batch]
+      processors: [attributes/update, transform/host, batch]
       exporters: [datadog, datadog/connector]
     metrics:
       receivers: [otlp, datadog/connector]
-      processors: [attributes/update, batch]
+      processors: [attributes/update, transform/host, batch]
       exporters: [datadog]
     logs:
       receivers: [otlp]
-      processors: [attributes/update, batch]
+      processors: [attributes/update, transform/host, batch]
       exporters: [datadog]
