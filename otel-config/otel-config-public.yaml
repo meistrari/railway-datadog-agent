@@ -47,13 +47,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp/with-auth]
-      processors: [attributes/update, transform/host batch]
+      processors: [attributes/update, transform/host, batch]
       exporters: [datadog, datadog/connector]
     metrics:
       receivers: [otlp/with-auth, datadog/connector]
-      processors: [attributes/update, transform/host batch]
+      processors: [attributes/update, transform/host, batch]
       exporters: [datadog]
     logs:
       receivers: [otlp/with-auth]
-      processors: [attributes/update, transform/host batch]
+      processors: [attributes/update, transform/host, batch]
       exporters: [datadog]
