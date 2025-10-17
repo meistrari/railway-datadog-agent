@@ -22,6 +22,20 @@ processors:
         action: hash
       - key: http.request.header.x-management-key
         action: hash
+  attributes/logs:
+    actions:
+      - key: railway.project_name
+        action: insert
+        value: ${env:RAILWAY_PROJECT_NAME}
+      - key: railway.project_id
+        action: insert
+        value: ${env:RAILWAY_PROJECT_ID}
+      - key: railway.environment_name
+        action: insert
+        value: ${env:RAILWAY_ENVIRONMENT_NAME}
+      - key: railway.environment_id
+        action: insert
+        value: ${env:RAILWAY_ENVIRONMENT_ID}
   transform/host:
     metric_statements: &statements
       - context: resource
@@ -48,5 +62,5 @@ service:
       exporters: [datadog]
     logs:
       receivers: [otlp]
-      processors: [attributes/update, transform/host, batch]
+      processors: [attributes/update, transform/host, attributes/logs, batch]
       exporters: [datadog]
