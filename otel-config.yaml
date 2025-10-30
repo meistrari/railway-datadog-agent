@@ -50,7 +50,7 @@ processors:
       - context: span
         statements:
           # Apply this action only to spans that have the db.system attribute
-          - set(attributes["span.type"], "sql") where attributes["db.system"] != nil
+          - set(span.attributes["span.type"], "sql") where span.attributes["db.system"] != nil
 
   attributes/logs:
     actions:
@@ -66,6 +66,7 @@ processors:
       - key: railway.environment_id
         action: insert
         value: ${env:RAILWAY_ENVIRONMENT_ID}
+
   transform/host:
     metric_statements: &statements
       - context: resource
