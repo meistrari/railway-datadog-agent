@@ -1,10 +1,29 @@
+extensions:
+  basicauth/server:
+    htpasswd:
+      inline: |
+        ${env:BASIC_AUTH_USERNAME}:${env:BASIC_AUTH_PASSWORD}
+
 receivers:
+  # Private receiver (no auth) on port 4317 for GRPC and 4318 for HTTP
   otlp:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+
+  # Public receiver (with auth) on port 4319 for HTTP only
+  otlp/with-auth:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4319
+        auth:
+          authenticator: basicauth/server
+      http:
+        endpoint: 0.0.0.0:4320
+        auth:
+          authenticator: basicauth/server
 
 exporters:
   datadog:
@@ -16,12 +35,23 @@ processors:
   batch:
   attributes/update:
     actions:
+      # Hash sensitive headers
       - key: http.request.header.authorization
         action: hash
       - key: http.request.header.x-data-token
         action: hash
       - key: http.request.header.x-management-key
         action: hash
+
+  transform/add_span_type:
+    # To connect APM and DBM in Datadog, we need to set the span.type to "sql" for database spans
+    # https://docs.datadoghq.com/opentelemetry/correlate/dbm_and_traces/?tab=datadogagentddotcollector&site=us5
+    trace_statements:
+      - context: span
+        statements:
+          # Apply this action only to spans that have the db.system attribute
+          - set(attributes["span.type"], "sql") where attributes["db.system"] != nil
+
   attributes/logs:
     actions:
       - key: railway.project_name
@@ -40,7 +70,7 @@ processors:
     metric_statements: &statements
       - context: resource
         statements:
-          - set(attributes["host"], "otelcol-docker")
+          - set(resource.attributes["host"], "otelcol-docker")
     trace_statements: *statements # Use the same statements as in metrics
     log_statements:   *statements # Use the same statements as in metrics
 
@@ -51,16 +81,17 @@ connectors:
       peer_tags_aggregation: true
 
 service:
+  extensions: [basicauth/server]
   pipelines:
     traces:
-      receivers: [otlp]
-      processors: [attributes/update, transform/host, batch]
+      receivers: [otlp, otlp/with-auth]
+      processors: [attributes/update, transform/add_span_type, transform/host, batch]
       exporters: [datadog, datadog/connector]
     metrics:
-      receivers: [otlp, datadog/connector]
+      receivers: [otlp, otlp/with-auth, datadog/connector]
       processors: [attributes/update, transform/host, batch]
       exporters: [datadog]
     logs:
-      receivers: [otlp]
+      receivers: [otlp, otlp/with-auth]
       processors: [attributes/update, transform/host, attributes/logs, batch]
       exporters: [datadog]
