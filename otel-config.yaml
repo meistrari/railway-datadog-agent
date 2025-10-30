@@ -50,7 +50,7 @@ processors:
       - context: span
         statements:
           # Apply this action only to spans that have the db.system attribute
-          - set(span.attributes["span.type"], "sql") where span.attributes["db.system"] != nil
+          - set(attributes["span.type"], "sql") where attributes["db.system"] != nil
 
   attributes/logs:
     actions:
