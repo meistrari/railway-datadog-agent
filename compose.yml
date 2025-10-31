@@ -9,3 +9,5 @@ services:
       - 4318:4318  # Private HTTP (no auth)
       - 4319:4319  # Public GRPC (with auth)
       - 4320:4320  # Public HTTP (with auth)
+      - 54526:54526  # Syslog receiver for logs
+      - 54527:54527  # Syslog receiver for logs

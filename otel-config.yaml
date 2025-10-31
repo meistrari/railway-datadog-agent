@@ -25,6 +25,14 @@ receivers:
         auth:
           authenticator: basicauth/server
 
+  # Syslog receiver for logs
+  syslog:
+    protocol: rfc5424
+    tcp:
+      listen_address: 0.0.0.0:54526
+    udp:
+      listen_address: 0.0.0.0:54527
+
 exporters:
   datadog:
     api:
@@ -93,6 +101,6 @@ service:
       processors: [attributes/update, transform/host, batch]
       exporters: [datadog]
     logs:
-      receivers: [otlp, otlp/with-auth]
+      receivers: [otlp, otlp/with-auth, syslog]
       processors: [attributes/update, transform/host, attributes/logs, batch]
       exporters: [datadog]
