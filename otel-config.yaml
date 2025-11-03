@@ -60,7 +60,7 @@ processors:
           # Apply this action only to spans that have the db.system attribute
           - set(attributes["span.type"], "sql") where attributes["db.system"] != nil
 
-  attributes/logs:
+  attributes/railway_data:
     actions:
       - key: railway.project_name
         action: insert
@@ -76,12 +76,12 @@ processors:
         value: ${env:RAILWAY_ENVIRONMENT_ID}
 
   transform/host:
-    metric_statements: &statements
+    metric_statements: &host_statements
       - context: resource
         statements:
           - set(resource.attributes["host"], "otelcol-docker")
-    trace_statements: *statements # Use the same statements as in metrics
-    log_statements:   *statements # Use the same statements as in metrics
+    trace_statements: *host_statements # Use the same statements as in metrics
+    log_statements:   *host_statements # Use the same statements as in metrics
 
 connectors:
   datadog/connector:
@@ -93,14 +93,37 @@ service:
   extensions: [basicauth/server]
   pipelines:
     traces:
-      receivers: [otlp, otlp/with-auth]
-      processors: [attributes/update, transform/add_span_type, transform/host, batch]
-      exporters: [datadog, datadog/connector]
+      receivers:
+        - otlp
+        - otlp/with-auth
+      processors:
+        - attributes/update
+        - transform/add_span_type
+        - transform/host
+        - batch
+      exporters:
+        - datadog
+        - datadog/connector
     metrics:
-      receivers: [otlp, otlp/with-auth, datadog/connector]
-      processors: [attributes/update, transform/host, batch]
-      exporters: [datadog]
+      receivers:
+        - otlp
+        - otlp/with-auth
+        - datadog/connector
+      processors:
+        - attributes/update
+        - transform/host
+        - batch
+      exporters:
+        - datadog
     logs:
-      receivers: [otlp, otlp/with-auth, syslog]
-      processors: [attributes/update, transform/host, attributes/logs, batch]
-      exporters: [datadog]
+      receivers:
+        - otlp
+        - otlp/with-auth
+        - syslog
+      processors:
+        - attributes/update
+        - transform/host
+        - attributes/railway_data
+        - batch
+      exporters:
+        - datadog
