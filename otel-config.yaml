@@ -25,13 +25,18 @@ receivers:
         auth:
           authenticator: basicauth/server
 
-  # Syslog receiver for logs
-  syslog:
-    protocol: rfc5424
-    tcp:
-      listen_address: 0.0.0.0:54526
-    udp:
-      listen_address: 0.0.0.0:54527
+  # TCP/UDP receiver for JSON logs (syslog format)
+  tcplog:
+    listen_address: 0.0.0.0:5140
+    operators:
+      - type: json_parser
+        parse_from: body
+
+  udplog:
+    listen_address: 0.0.0.0:5140
+    operators:
+      - type: json_parser
+        parse_from: body
 
 exporters:
   datadog:
@@ -83,6 +88,19 @@ processors:
     trace_statements: *host_statements # Use the same statements as in metrics
     log_statements:   *host_statements # Use the same statements as in metrics
 
+  transform/caddy_logs:
+    log_statements:
+      - context: log
+        conditions:
+          - log.attributes["service.name"] == "caddy"
+        statements:
+          # Rename traceID to trace_id and spanID to span_id in log attributes
+          - set(log.attributes["trace_id"], log.attributes["traceID"]) where log.attributes["traceID"] != nil
+          - set(log.attributes["span_id"], log.attributes["spanID"]) where log.attributes["spanID"] != nil
+          # Delete the old camelCase fields
+          - delete_key(log.attributes, "traceID") where log.attributes["traceID"] != nil
+          - delete_key(log.attributes, "spanID") where log.attributes["spanID"] != nil
+
 connectors:
   datadog/connector:
     traces:
@@ -119,11 +137,13 @@ service:
       receivers:
         - otlp
         - otlp/with-auth
-        - syslog
+        - tcplog
+        - udplog
       processors:
         - attributes/update
         - transform/host
         - attributes/railway_data
+        - transform/caddy_logs
         - batch
       exporters:
         - datadog
