@@ -51,6 +51,8 @@ processors:
       # Hash sensitive headers
       - key: http.request.header.authorization
         action: hash
+      - key: http.request.header.x-api-key
+        action: hash
       - key: http.request.header.x-data-token
         action: hash
       - key: http.request.header.x-management-key
