@@ -5,7 +5,7 @@ extensions:
         ${env:BASIC_AUTH_USERNAME}:${env:BASIC_AUTH_PASSWORD}
 
 receivers:
-  # Private receiver (no auth) on port 4317 for GRPC and 4318 for HTTP
+  # Private receiver (no auth)
   otlp:
     protocols:
       grpc:
@@ -13,7 +13,7 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
-  # Public receiver (with auth) on port 4319 for HTTP only
+  # Public receiver (with auth)
   otlp/with-auth:
     protocols:
       grpc:
@@ -25,7 +25,7 @@ receivers:
         auth:
           authenticator: basicauth/server
 
-  # TCP/UDP receiver for JSON logs (syslog format)
+  # TCP/UDP receiver for JSON logs
   tcplog:
     listen_address: 0.0.0.0:5140
     operators:
@@ -88,19 +88,6 @@ processors:
     trace_statements: *host_statements # Use the same statements as in metrics
     log_statements:   *host_statements # Use the same statements as in metrics
 
-  transform/caddy_logs:
-    log_statements:
-      - context: log
-        conditions:
-          - log.attributes["service.name"] == "caddy"
-        statements:
-          # Rename traceID to trace_id and spanID to span_id in log attributes
-          - set(log.attributes["trace_id"], log.attributes["traceID"]) where log.attributes["traceID"] != nil
-          - set(log.attributes["span_id"], log.attributes["spanID"]) where log.attributes["spanID"] != nil
-          # Delete the old camelCase fields
-          - delete_key(log.attributes, "traceID") where log.attributes["traceID"] != nil
-          - delete_key(log.attributes, "spanID") where log.attributes["spanID"] != nil
-
 connectors:
   datadog/connector:
     traces:
@@ -108,7 +95,8 @@ connectors:
       peer_tags_aggregation: true
 
 service:
-  extensions: [basicauth/server]
+  extensions:
+    - basicauth/server
   pipelines:
     traces:
       receivers:
@@ -143,7 +131,6 @@ service:
         - attributes/update
         - transform/host
         - attributes/railway_data
-        - transform/caddy_logs
         - batch
       exporters:
         - datadog
