@@ -87,6 +87,8 @@ processors:
       - context: resource
         statements:
           - set(resource.attributes["host"], "otelcol-docker")
+          - set(resource.attributes["host.name"], "otelcol-docker")
+          - set(resource.attributes["datadog.host.name"], "otelcol-docker")
     trace_statements: *host_statements # Use the same statements as in metrics
     log_statements:   *host_statements # Use the same statements as in metrics
 
