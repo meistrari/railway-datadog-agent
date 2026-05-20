@@ -101,6 +101,7 @@ connectors:
 service:
   extensions:
     - basicauth/server
+
   pipelines:
     traces:
       receivers:
